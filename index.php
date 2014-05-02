@@ -3,75 +3,112 @@
 // require_once 'maze.php';
 // require_once 'solver.php';
 
-$width = 5;
-$height = 5;
+$width = 50;
+$height = 50;
+$grid = array();
+$unvisited = array();
 
 $all = $width * $height;
 $visited = 1;
-$grid[0][0][0] = "#";
 for ($w = 0; $w < $width; $w++) {
  for ($h = 0; $h < $height; $h++) {
-     $grid[$w][$h][0] = false;
+     $grid[$w][$h] = array('cell' => '#', false);
+     $unvisited[$w][$h] = true; 
  }   
 }
 
-// Depth-First Search
+// Recursive backtracking
 
-while ($visited < $all) {
-	// Find all neighbors of $current_cell with all walls inact
-	$current_cell = array(1, 1, array(0 => ' ', 1 => true));
-	$neighbors = array(
-			array($current_cell[0]-1, $current_cell[1], false), // top
-			array($current_cell[0], $current_cell[1]-1, false), // left
-			array($current_cell[0], $current_cell[1]+1, false), // right 
-			array($current_cell[0]+1, $current_cell[1], false) // bottom
-		);
-	if (count($neighbors)) {
-		// choose one at random
-		$next = $neighbors[rand(1, count($neighbors))];
+$current_width = 0;
+$current_height = 0;
 
-		// knock down the wall
-		$next[2] = true;
-		var_dump($next);
-        
-		// push to $current_cell
-// 		$grid[]
-// 		array_push($next, $grid);
-		
-		// make the new cell $current_cell
-		
-		// add 1 to $visited
-		$visited++;
-	} else {
-	    array_pop($current_cell);
-	    print "dont have any<br>";
+// Entrance
+$grid[0][0] = array('cell' => '&nbsp;', true);
+
+// Exit
+$grid[$width][$height] = array('cell' => '&nbsp', true);
+
+$neighbors_workable = array();
+$path = array(array($current_width, $current_height));
+$unvisited[$current_width][$current_height] = false;
+
+function console_log($text) {
+	trigger_error($text, E_USER_NOTICE);
+}
+
+function generate($width, $height, $grid) {
+	$value = '';
+	$value .= '<table>';
+	for ($w = 0; $w < $width; $w++) {
+		$value .= '<tr style="background-color: #ddd">';
+		for ($h = 0; $h < $height; $h++) {
+			$value .= "<td>";
+				if ($grid[$w][$h][0]) {
+					$value .= ' ';
+				} else {
+					$value .= "#";	
+				}
+			$value .= "</td>";
+		}
+		$value .= "</tr>";
 	}
-	$visited++;
+	$value .= "</table>";
+	return $value;
 }
 
-$grid_width = 0;
+while (count($path) != 0) {
+	// Find all neighbors of $current_cell with all walls inact
 
-print "<br>";
+	$neighbors = array(
+			array($current_width-1, $current_height),
+			array($current_width, $current_height-1),
+			array($current_width, $current_height+1),
+			array($current_width+1, $current_height)
+		);
 
-for ($w = 0; $w < $width; $w++) {
-    for ($h = 0; $h < $height; $h++) {
-        if ($grid_width == $width-1) {
-            var_export($grid[$w][$h][0]);
-            echo "<br>";
-            $grid_width = 0;
-        } else {
-            var_export($grid[$w][$h][0]);
-            echo " ";
-            $grid_width++;
-        }
-    }
+	$neighbors_workable = array();
+
+	foreach($neighbors as $neighbor) {
+
+		if($neighbor[0] > -1 && 
+			$neighbor[0] < $width &&
+			$neighbor[1] > -1 && 
+			$neighbor[1] < $height && 
+			$unvisited[$neighbor[0]][$neighbor[1]] == true &&
+			$grid[$neighbor[0]][$neighbor[1]][0] == false) {
+
+				$adj = 0;
+
+				if ($grid[$neighbor[0]+1][$neighbor[1]][0] == true) $adj = $adj + 1;
+				if ($grid[$neighbor[0]-1][$neighbor[1]][0] == true) $adj = $adj + 1;
+				if ($grid[$neighbor[0]][$neighbor[1]+1][0] == true) $adj = $adj + 1;
+				if ($grid[$neighbor[0]][$neighbor[1]-1][0] == true) $adj = $adj + 1;
+
+				if ($adj == 1) {
+					array_push($neighbors_workable, $neighbor);
+				}		
+		}
+	}
+
+	if (count($neighbors_workable)) {
+		// choose one at random
+		$next = $neighbors_workable[array_rand($neighbors_workable, 1)];
+
+		// make it walkable
+		$grid[$next[0]][$next[1]] = array('cell' => '&nbsp', true);
+		$unvisited[$next[0]][$next[1]] = false;
+        
+		$current_width = $next[0];
+		$current_height = $next[1];
+
+		array_push($path, array($next[0], $next[1]));
+		
+	} else {
+		$current_cell = array_pop($path);
+		$current_width = $current_cell[0];
+		$current_height = $current_cell[1];
+	}
+
 }
 
-
-// $maze = new Maze(2, 2);
-
-// $maze->generate();
-
-// $maze_solver = new Solver();
-
-// print $maze_solver->solve($maze->to_array());
+echo generate($width, $height, $grid);
