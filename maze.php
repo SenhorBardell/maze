@@ -5,87 +5,128 @@ class Maze {
 	public $width;
 	public $height;
 	public $grid;
-	public $cells;
+	private $path;
+	private $unvisited;
+	private $cells;
 	public $total_cells;
-	public $unchecked;
+	private $unchecked;
+	private $current_width;
+	private $current_height;
+	private $neighbors_workable;
+	private $neighbors;
 
 	public function __construct($width, $height) {
 		$this->width = $width;
 		$this->height = $height;
+		$this->grid = array();
+		$this->unvisited = array();
 
-		return true;
+		for ($w = 0; $w < $this->width; $w++) {
+			for ($h = 0; $h < $this->height; $h++) {
+				$this->grid[$w][$h] = array('cell' => '#', false);
+				$this->unvisited[$w][$h] = true; 
+			}
+		}
+
+		$this->current_width = 0;
+		$this->current_height = 0;
+
+		// Entrance
+		$this->grid[0][0] = array('cell' => '&nbsp;', true);
+
+		// Exit
+		$this->grid[$width][$height] = array('cell' => '&nbsp', true);
+
+		$this->neighbors_workable = array();
+		$this->path = array(array($this->current_width, $this->current_height));
+		$this->unvisited[$this->current_width][$this->current_height] = false;
+
+		return $this;
+
 	}
 
 	public function generate() {
 
-		$this->total_cells = $this->width * $this->height;
+		// Recursive backtracking
 
-		$this->grid = array();
-		$this->unchecked = array();
+		while (count($this->path) != 0) {
+
+			// Find all neighbors of $current_cell with all walls inact
+
+			$this->neighbors = array(
+					array($this->current_width-1, $this->current_height),
+					array($this->current_width, $this->current_height-1),
+					array($this->current_width, $this->current_height+1),
+					array($this->current_width+1, $this->current_height)
+				);
+
+			$this->neighbors_workable = array();
+
+			foreach($this->neighbors as $neighbor) {
+
+				if($neighbor[0] > -1 && 
+					$neighbor[0] < $this->width &&
+					$neighbor[1] > -1 && 
+					$neighbor[1] < $this->height && 
+					$this->unvisited[$neighbor[0]][$neighbor[1]] == true &&
+					$this->grid[$neighbor[0]][$neighbor[1]][0] == false) {
+
+						$adj = 0;
+
+						if ($this->grid[$neighbor[0]+1][$neighbor[1]][0] == true) $adj = $adj + 1;
+						if ($this->grid[$neighbor[0]-1][$neighbor[1]][0] == true) $adj = $adj + 1;
+						if ($this->grid[$neighbor[0]][$neighbor[1]+1][0] == true) $adj = $adj + 1;
+						if ($this->grid[$neighbor[0]][$neighbor[1]-1][0] == true) $adj = $adj + 1;
+
+						if ($adj == 1) {
+							array_push($this->neighbors_workable, $neighbor);
+						}		
+				}
+			}
+
+			if (count($this->neighbors_workable)) {
+				// choose one at random
+				$next = $this->neighbors_workable[array_rand($this->neighbors_workable, 1)];
+
+				// make it walkable
+				$this->grid[$next[0]][$next[1]] = array('cell' => '&nbsp', true);
+				$unvisited[$next[0]][$next[1]] = false;
+	
+				$this->current_width = $next[0];
+				$this->current_height = $next[1];
+
+				array_push($this->path, array($next[0], $next[1]));
+				
+			} else {
+				$current_cell = array_pop($this->path);
+				$this->current_width = $current_cell[0];
+				$this->current_height = $current_cell[1];
+			}
+		}
+	
+	return $this;
+
+	}
+
+	public function render() {
+		$value = '';
+		$value .= '<table>';
 		for ($w = 0; $w < $this->width; $w++) {
+			$value .= '<tr style="background-color: #ddd">';
 			for ($h = 0; $h < $this->height; $h++) {
-				$this->grid[$w][$h] = [0, 0, 0, 0];
-				$this->unchecked[$w][$h] = true;
+				$value .= "<td>";
+					if ($this->grid[$w][$h][0]) {
+						$value .= '&nbsp;';
+					} else {
+						$value .= "#";	
+					}
+				$value .= "</td>";
 			}
+			$value .= "</tr>";
 		}
-
-		$rand01 = rand(1, $w);
-		$rand02 = rand(1, $h);
-
-		var_dump($rand01);
-		var_dump($rand02);
-
-		// $current_cell = array();
-
-		$current_cell = [$rand01, $rand02];
-
-		$path = [$current_cell];
-		$this->unchecked[$current_cell[0]][$current_cell[1]] = false;
-		$visited = 1;
-
-		while ($visited < $this->total_cells) {
-			$potential = [
-				[$current_cell[0]-1, $current_cell[1], 0, 2], 
-				[$current_cell[0], $current_cell[1]+1, 1, 3], 
-				[$current_cell[0]+1, $current_cell[1], 2, 0], 
-				[$current_cell[0], $current_cell[1]-1, 3, 1]
-			];
-
-			$neighbors = array();
-			$cells = array();
-
-			for ($l = 0; $l < 4; $l++) {
-
-				if ($potential[$l][0] > -1 && // $h inside?
-					$potential[$l][0] < $h && // $h inside?
-					$potential[$l][1] > -1 && // $w inside?
-					$potential[$l][1] < $w && // $w inside?
-					$this->unchecked[$l][0][$potential[$l][1]]) { // Has the neibhor already visited? 
-						array_push($neighbors, $potential[$l]);
-				}
-
-				if (count($neighbors)) {
-					$next = $neighbors[rand(count($neighbors))];
-
-					$cells[$current_cell[0]][$current_cell[1]][$next[2]] = true;
-
-					$cells[$next[0]][$next[1]][$next[3]] = true;
-
-					$this->unchecked[$next[0][$next[1]]] = false;
-					$visited++;
-
-					$this->current_cell = [$next[0], $next[1]];
-					array_push($this->current_cell);
-				} else {
-					$current_cell = array_pop($path);
-				}
-
-				$this->cells = $cells;
-			}
-		}
+		$value .= "</table>";
+		echo $value;
+		return $this;
 	}
 
-	public function to_array() {
-		// var_dump($this->cells);
-	}
 }
