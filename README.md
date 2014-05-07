@@ -1,6 +1,6 @@
-# Simple Maze generator and path solver
+# Simple Maze generator and pathfinder
 
-Made explicitly as a test task for systtech guys.
+Made explicitly as a test task for systtech guys. Without any heap or queue usage.
 
 usage: 
 
