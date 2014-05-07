@@ -3,10 +3,21 @@
 require_once 'maze.php';
 require_once 'solver.php';
 
-$maze = new Maze(5, 5);
+$width = 25;
+$height = 79;
+
+$maze = new Maze($width, $height);
 
 $maze->generate();
 
-Solver::solve($maze->grid);
+$grid = $maze->grid;
 
-$maze->render();
+$path = Solver::a_star(array(0, 0), array($width, $height), $grid);
+
+foreach ($path as $node) {
+	$grid[$node[0]][$node[1]] = array('cell' => '+', true);
+}
+
+echo "<html><body><pre>\n";
+Maze::render($grid, $width, $height);
+echo "</pre></body></html>";
