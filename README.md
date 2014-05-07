@@ -4,7 +4,7 @@ Made explicitly as a test task for systtech guys.
 
 usage: 
 
-``git@github.com:SenhorBardell/maze.git``
+``git clone git@github.com:SenhorBardell/maze.git``
 
 ``cd maze``
 
