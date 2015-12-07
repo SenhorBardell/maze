@@ -30,11 +30,11 @@ class Maze {
 		$this->grid = array();
 		$this->unvisited = array();
 
-		// Fill maze 
+		// Fill maze
 		for ($w = 0; $w < $this->width; $w++) {
 			for ($h = 0; $h < $this->height; $h++) {
 				$this->grid[$w][$h] = array('cell' => '#', false);
-				$this->unvisited[$w][$h] = true; 
+				$this->unvisited[$w][$h] = true;
 			}
 		}
 
@@ -80,10 +80,10 @@ class Maze {
 
 				// check neighbours
 
-				if($neighbor[0] > -1 && 
+				if($neighbor[0] > -1 &&
 					$neighbor[0] < $this->width &&
-					$neighbor[1] > -1 && 
-					$neighbor[1] < $this->height && 
+					$neighbor[1] > -1 &&
+					$neighbor[1] < $this->height &&
 					$this->unvisited[$neighbor[0]][$neighbor[1]] == true &&
 					$this->grid[$neighbor[0]][$neighbor[1]][0] == false) {
 
@@ -91,14 +91,14 @@ class Maze {
 
 						$adj = 0;
 
-						if ($this->grid[$neighbor[0]+1][$neighbor[1]][0] == true) $adj = $adj + 1;
-						if ($this->grid[$neighbor[0]-1][$neighbor[1]][0] == true) $adj = $adj + 1;
-						if ($this->grid[$neighbor[0]][$neighbor[1]+1][0] == true) $adj = $adj + 1;
-						if ($this->grid[$neighbor[0]][$neighbor[1]-1][0] == true) $adj = $adj + 1;
+						if (@$this->grid[$neighbor[0]+1][$neighbor[1]][0] == true) $adj = $adj + 1;
+						if (@$this->grid[$neighbor[0]-1][$neighbor[1]][0] == true) $adj = $adj + 1;
+						if (@$this->grid[$neighbor[0]][$neighbor[1]+1][0] == true) $adj = $adj + 1;
+						if (@$this->grid[$neighbor[0]][$neighbor[1]-1][0] == true) $adj = $adj + 1;
 
 						if ($adj == 1) {
 							array_push($this->neighbors_workable, $neighbor);
-						}		
+						}
 				}
 			}
 
@@ -110,12 +110,12 @@ class Maze {
 				// make it walkable
 				$this->grid[$next[0]][$next[1]] = array('cell' => '&nbsp', true);
 				$unvisited[$next[0]][$next[1]] = false;
-	
+
 				$this->current_width = $next[0];
 				$this->current_height = $next[1];
 
 				array_push($this->path, array($next[0], $next[1]));
-				
+
 			} else {
 
 				// Otherwise pop it out
@@ -125,7 +125,7 @@ class Maze {
 				$this->current_height = $current_cell[1];
 			}
 		}
-	
+
 	return $this;
 
 	}
@@ -150,8 +150,7 @@ class Maze {
 			$value .= "</tr>";
 		}
 		$value .= "</table>";
-		echo $value;
-		return $this;
+        return $value;
 	}
 
 }

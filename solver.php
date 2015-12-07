@@ -50,7 +50,7 @@ class Solver {
 
 
 			// If end point is current we no need to do the rest
-			if ($current[0] == $end[0]-1 && $current[1] == $end[1]-1) 
+			if ($current[0] == $end[0]-1 && $current[1] == $end[1]-1)
 				break;
 
 			foreach ($path as $node) {
@@ -101,10 +101,10 @@ class Solver {
 		$current_y = $node[1];
 
 		$g = 1;
-		
+
 		// Manhattan
 		$h = $g * abs($current_x - $target_x) + abs($current_y - $current_x);
-		
+
 		$f = $g + $h;
 		return $f;
 	}
@@ -141,10 +141,10 @@ class Solver {
 
 		$neighbours = array();
 
-		$x - 1 >= 0 && $grid[$x-1][$y][0] == true ? array_push($neighbours, array($x-1, $y)) : false;
-		$x + 1 >= 0 && $grid[$x+1][$y][0] == true ? array_push($neighbours, array($x+1, $y)) : false;
-		$y - 1 >= 0 && $grid[$x][$y-1][0] == true ? array_push($neighbours, array($x, $y-1)) : false;
-		$y + 1 >= 0 && $grid[$x][$y+1][0] == true ? array_push($neighbours, array($x, $y+1)) : false;
+		$x - 1 >= 0 && @$grid[$x-1][$y][0] == true ? array_push($neighbours, array($x-1, $y)) : false;
+		$x + 1 >= 0 && @$grid[$x+1][$y][0] == true ? array_push($neighbours, array($x+1, $y)) : false;
+		$y - 1 >= 0 && @$grid[$x][$y-1][0] == true ? array_push($neighbours, array($x, $y-1)) : false;
+		$y + 1 >= 0 && @$grid[$x][$y+1][0] == true ? array_push($neighbours, array($x, $y+1)) : false;
 
 		return $neighbours;
 	}

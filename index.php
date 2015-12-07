@@ -19,5 +19,5 @@ foreach ($path as $node) {
 }
 
 echo "<html><body><pre>\n";
-Maze::render($grid, $width, $height);
+echo Maze::render($grid, $width, $height);
 echo "</pre></body></html>";
